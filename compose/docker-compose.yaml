@@ -1,0 +1,59 @@
+# version: '3' # Docker Compose 파일 포맷 버전, 최신 도커엔진에서는 생략을 권장
+
+# 컨테이너들을 정의하는 영역
+services:
+  # 하나의 컨테이너 정의, 속성명은 해당 services에서 겹치지 않는 아무 값이나 괜찮음
+  db1:
+    # 컨테이너명 설정
+    container_name: my-mysql
+    # 이미지 설정
+    image: mysql:8.4
+    # 컨테이너가 종료되면 도커엔진이 자동으로 다시 시작할지 말지 설정
+    restart: always
+    # 포트 설정
+    ports:
+      - "33306:3306"
+    # 환경 변수 설정
+    environment:
+      MYSQL_ROOT_PASSWORD: msa505
+      MYSQL_DATABASE: meerkatgram
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      TZ: Asia/Seoul
+    # 컨테이너의 볼륨 설정
+    volumes:
+      - my-mysql-volume:/var/lib/mysql
+    # 컨테이너의 네트워크 설정
+    networks:
+      - my-network
+  web1:
+    container_name: my-app
+    # 이미지 설정
+    image: eclipse-temurin:17-jre
+    # 포트 설정
+    ports:
+      - "38080:8080"
+    environment:
+      DB_HOST: my-mysql
+      DB_PORT: 3306
+      DB_NAME: meerkatgram
+      DB_USER: root
+      DB_PASSWORD: msa505
+      JWT_SECRET: fewfewf7efew7yfeyfe9fe87af987ynf8dgyn9d8syf9wya9y98ysad9f8sf8s
+      SERVER_URI: http://localhost:8080
+      CORS_ALLOWEDORIGINS: http://localhost:5173
+      TZ: Asia/Seoul
+    # 작업 디렉토리 설정
+    working_dir: /app
+    # 컨테이너 시작 시 실행할 커맨드 설정
+    command: ["java", "-jar", "app.jar"]
+    volumes:
+      - ./app.jar:/app/app.jar
+    networks:
+      - my-network
+# 해당 컴포즈에서 생성할 볼륨 설정
+volumes:
+  my-mysql-volume:
+# 해당 컴포즈에서 생성할 네트워크 설정
+networks:
+  my-network:
